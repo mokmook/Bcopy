@@ -18,7 +18,7 @@ public class SettingBtn : MonoBehaviour
             SettingActive();
         }
     }
-     void SettingActive()
+        public void SettingActive()
     {
         SettingPanel.SetActive(!SettingPanel.activeSelf);
     }
