@@ -7,26 +7,43 @@ public class PlayerController : MonoBehaviour
     [Header("플레이어 세팅")]
      [SerializeField]private float walkSpeed=40;
      [SerializeField]private float runSpeed=50;
+    [SerializeField] private float sitDownSpeed = 25;
     private float applySpeed;
     private bool isRun=false;
+    private bool isSitDown=false;
 
     [SerializeField] private float jumpForce;
     private bool isGround=true;
+
+    private CapsuleCollider playerCollider;
+
     [Header("카메라 관련")]
     [SerializeField] private float lookSensitivity;
     [SerializeField] private float cameraRotationLimit;
     private float curCameraRotationX = 0f;
 
+    [SerializeField]
+    private float SitDownPosY;
+    private float originPosY;
+    private float applySitDownPosY;
+
+
     [SerializeField] Camera playerCamera;
     private Rigidbody rb;
     void Start()
     {
+        playerCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
         applySpeed = walkSpeed;
+        originPosY = playerCamera.transform.localPosition.y;
     }
 
     void Update()
     {
+        print(isSitDown);
+        IsGround();
+        TryJump();
+        TrySitDown();
         TryRun();
         Move();
         CameraRotation();
@@ -64,8 +81,47 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.LeftShift))
             isRun = true;
-        else
-            isRun = false;
+        if(Input.GetKeyUp(KeyCode.LeftShift))
+            isRun = false;       
         applySpeed = isRun ? runSpeed : walkSpeed;
+    }
+    private void TryJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && isGround)           
+            rb.velocity = transform.up * jumpForce;        
+    }
+    private void TrySitDown()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+            isSitDown = !isSitDown;
+        if (Input.GetKey(KeyCode.LeftControl))       
+            isSitDown = true;
+        else
+            isSitDown = false;
+
+        applySpeed = isSitDown ? sitDownSpeed : walkSpeed;
+        applySitDownPosY = isSitDown ? SitDownPosY : originPosY;
+
+        StartCoroutine("SitDown");
+    }
+    IEnumerator SitDown()
+    {
+        float posY = playerCamera.transform.localPosition.y;
+        int count = 0;
+
+        while (posY!=applySitDownPosY)
+        {
+            count++;
+            posY = Mathf.Lerp(posY,applySitDownPosY,.3f);
+            playerCamera.transform.localPosition = new Vector3(0f, posY, 0f);
+            if (count > 15)
+                break;
+            yield return null;
+        }
+        playerCamera.transform.localPosition = new Vector3(0f, applySitDownPosY, 0f);
+    }
+    private void IsGround()
+    {
+        isGround = Physics.Raycast(transform.position, Vector3.down, playerCollider.bounds.extents.y+.1f);
     }
 }
