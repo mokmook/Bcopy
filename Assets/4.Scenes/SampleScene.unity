@@ -760,13 +760,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4421ff798b91f2a4f8b1a95ff244ff3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handName: 
-  range: 2
-  damage: 1
-  attackDelay: 1
-  attackDelayA: 0.5
-  attackDelayB: 0.1
-  anim: {fileID: 4368878920397696235}
+  armData:
+    handName: "\uB9E8\uC190"
+    range: 2
+    damage: 1
+    attackDelay: 1
+    attackDelayA: 0.5
+    attackDelayB: 0.1
+    anim: {fileID: 4368878920397696235}
 --- !u!1 &4611593609020847255
 GameObject:
   m_ObjectHideFlags: 0

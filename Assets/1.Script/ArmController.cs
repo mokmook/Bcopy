@@ -12,7 +12,7 @@ public class ArmController : MonoBehaviour
     private RaycastHit hit;
     void Start()
     {
-        
+
     }
 
     void Update()
@@ -21,9 +21,16 @@ public class ArmController : MonoBehaviour
     }
     private void TryAttack()
     {
-        if (Input.GetButton("Fire1")) 
+        if (Input.GetButton("Fire1")&&!isAttack) 
         {
-
+            StartCoroutine("AttackCoroutine");
         }
+    }
+    IEnumerator AttackCoroutine()
+    {
+        isAttack = true;
+       
+        yield return null;
+        isAttack = false;
     }
 }
