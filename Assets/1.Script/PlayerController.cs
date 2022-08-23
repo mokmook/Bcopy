@@ -40,7 +40,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        print(isSitDown);
         IsGround();
         TryJump();
         TrySitDown();
