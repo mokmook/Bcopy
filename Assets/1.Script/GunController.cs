@@ -7,11 +7,13 @@ public class GunController : MonoBehaviour
     [SerializeField] private Gun cur_Gun;
 
     private float cur_FireRate;
-    void Start()
-    {
-        
-    }
 
+    AudioSource audioSource;
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
     void Update()
     {
         GunFireRateCalc();
@@ -34,6 +36,13 @@ public class GunController : MonoBehaviour
     }
     private void Shoot()
     {
+        PlaySE(cur_Gun.fire_Sound);
+        cur_Gun.muzzleFlash.Play();
         print("dsa");
+    }
+    private void PlaySE(AudioClip _clip)
+    {
+        audioSource.clip = _clip;
+        audioSource.Play();
     }
 }
