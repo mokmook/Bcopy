@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
+    public static bool isActivate = true;
+
     [SerializeField] private Gun cur_Gun;
 
     private float cur_FireRate;
@@ -18,19 +21,26 @@ public class GunController : MonoBehaviour
 
     private RaycastHit hit;
     [SerializeField]private Camera theCam;
+    private Crosshair theCrosshair;
     [SerializeField] private GameObject hitEffectPrefab;
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         recoilBack = new Vector3(cur_Gun.retroActionForce, orignPos.y, orignPos.z);
         retroActionRecoilBack = new Vector3(cur_Gun.retroActionFineSightForce, cur_Gun.fineSightOriginPos.y, cur_Gun.fineSightOriginPos.z);
+        theCrosshair = FindObjectOfType<Crosshair>();
+        WeaponManager.cur_Weapon = cur_Gun.GetComponent<Transform>();
+        WeaponManager.cur_WeaponAnim = cur_Gun.anim;
     }
     void Update()
     {
-        GunFireRateCalc();
-        TryFire();
-        TryReload();
-        TryFindSight();
+        if (isActivate)
+        {
+            GunFireRateCalc();
+            TryFire();
+            TryReload();
+            TryFindSight();
+        }
     }
     private void GunFireRateCalc()
     {
@@ -62,6 +72,7 @@ public class GunController : MonoBehaviour
     }
     private void Shoot()
     {
+        theCrosshair.FireAnimation();
         cur_Gun.cur_BulletCount--;
         cur_FireRate = cur_Gun.fireRate;
         PlaySE(cur_Gun.fire_Sound);
@@ -73,11 +84,15 @@ public class GunController : MonoBehaviour
     }
     private void Hit()
     {
-        if(Physics.Raycast(theCam.transform.position,theCam.transform.forward,out hit, cur_Gun.range))
-        {
+        if(Physics.Raycast(theCam.transform.position,theCam.transform.forward+
+            new Vector3(Random.Range(-theCrosshair.GetAccuracy(),-cur_Gun.accuracy), 
+                        Random.Range(theCrosshair.GetAccuracy(), +cur_Gun.accuracy),0)
+                        ,out hit, cur_Gun.range))
+        {   
             GameObject clone=Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-            Destroy(clone, 2f);
+            Destroy(clone, 2f);           
         }
+        
     }
     private void PlaySE(AudioClip _clip)
     {
@@ -91,6 +106,11 @@ public class GunController : MonoBehaviour
             CancelFindSight();
             StartCoroutine("ReloadCoroutine");
         }
+    }
+    public void CancelReload()
+    {
+        StopAllCoroutines();
+        isReload = false;
     }
     private void TryFindSight()
     {
@@ -108,6 +128,7 @@ public class GunController : MonoBehaviour
     {
         isFindSightMode = !isFindSightMode;
         cur_Gun.anim.SetBool("FindSightMode", isFindSightMode);
+        theCrosshair.FineSightAnimation(isFindSightMode);
         if (isFindSightMode)
         {
             StopAllCoroutines();
@@ -201,5 +222,23 @@ public class GunController : MonoBehaviour
     public Gun GetGun()
     {
         return cur_Gun;
+    }
+    public bool GetFineSight()
+    {
+        return isFindSightMode;
+    }
+    public void GunChange(Gun _gun)
+    {
+        if (WeaponManager.cur_Weapon != null)
+        {
+            WeaponManager.cur_Weapon.gameObject.SetActive(false);
+        }
+        cur_Gun = _gun;
+        WeaponManager.cur_Weapon = cur_Gun.GetComponent<Transform>();
+        WeaponManager.cur_WeaponAnim = cur_Gun.anim;
+
+        cur_Gun.transform.localPosition = Vector3.zero;
+        cur_Gun.gameObject.SetActive(true);
+        isActivate = true;
     }
 }

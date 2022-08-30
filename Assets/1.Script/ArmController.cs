@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ArmController : MonoBehaviour
 {
+    public static bool isActivate = false;
+
+
     [SerializeField] private Arm cur_Arm;
     private bool isAttack = false;
     private bool isSwing = false;
@@ -11,8 +14,8 @@ public class ArmController : MonoBehaviour
     private RaycastHit hit;
     private void Update()
     {
+        if(isActivate)
         TryAttack();
-        Debug.DrawRay(transform.position,transform.forward,color:Color.red);
     }
     private void TryAttack()
     {
@@ -52,5 +55,18 @@ public class ArmController : MonoBehaviour
             return true;
         }                                
         return false;
+    }
+    public void ArmChange(Arm _arm)
+    {
+        if (WeaponManager.cur_Weapon != null)
+        {
+            WeaponManager.cur_Weapon.gameObject.SetActive(false);
+        }
+        cur_Arm = _arm;
+        WeaponManager.cur_Weapon = cur_Arm.GetComponent<Transform>();
+        WeaponManager.cur_WeaponAnim = cur_Arm.anim;
+
+        cur_Arm.transform.localPosition = Vector3.zero;
+        cur_Arm.gameObject.SetActive(true);
     }
 }

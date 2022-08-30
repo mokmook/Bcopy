@@ -9,9 +9,11 @@ public class PlayerController : MonoBehaviour
      [SerializeField]private float runSpeed=50;
     [SerializeField] private float sitDownSpeed = 25;
     private float applySpeed;
+    private bool isWalk = false;
     private bool isRun=false;
     private bool isSitDown=false;
 
+    private Vector3 lastPos;
     [SerializeField] private float jumpForce;
     private bool isGround=true;
 
@@ -31,6 +33,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Camera playerCamera;
     private Rigidbody rb;
     GunController theGunController;
+    private Crosshair theCrosshair;
     void Start()
     {
         playerCollider = GetComponent<CapsuleCollider>();
@@ -38,6 +41,7 @@ public class PlayerController : MonoBehaviour
         applySpeed = walkSpeed;
         originPosY = playerCamera.transform.localPosition.y;
         theGunController = FindObjectOfType<GunController>();
+        theCrosshair = FindObjectOfType<Crosshair>();
     }
 
     void Update()
@@ -47,6 +51,7 @@ public class PlayerController : MonoBehaviour
         TrySitDown();
         TryRun();
         Move();
+        MoveCheck();
         CameraRotation();
         CharacterRotation();
     }
@@ -62,6 +67,15 @@ public class PlayerController : MonoBehaviour
 
         rb.MovePosition(transform.position+velocity*Time.deltaTime);
 
+    }
+    private void MoveCheck()
+    {
+        if (!isRun&&!isSitDown)
+        {
+            isWalk =Vector3.Distance(lastPos,transform.position) >0.02f  ? true : false;
+            theCrosshair.WalkingAnimation(isWalk);
+            lastPos = transform.position;
+        }              
     }
     private void CameraRotation()
     {
@@ -88,6 +102,7 @@ public class PlayerController : MonoBehaviour
         if(Input.GetKeyUp(KeyCode.LeftShift))
             isRun = false;       
         applySpeed = isRun ? runSpeed : walkSpeed;
+        theCrosshair.RunningAnimation(isRun);
     }
     private void TryJump()
     {
@@ -96,6 +111,7 @@ public class PlayerController : MonoBehaviour
     }
     private void TrySitDown()
     {
+        theCrosshair.CrouchingAnimation(isSitDown);
         if (Input.GetKeyDown(KeyCode.C))
             isSitDown = !isSitDown;
         if (Input.GetKey(KeyCode.LeftControl))       
@@ -126,6 +142,7 @@ public class PlayerController : MonoBehaviour
     }
     private void IsGround()
     {
-        isGround = Physics.Raycast(transform.position, Vector3.down, playerCollider.bounds.extents.y+.1f);
+        isGround = Physics.Raycast(transform.position, Vector3.down, playerCollider.bounds.extents.y+0.3f);
+        theCrosshair.RunningAnimation(!isGround);
     }
 }
