@@ -30,12 +30,14 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] Camera playerCamera;
     private Rigidbody rb;
+    GunController theGunController;
     void Start()
     {
         playerCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
         applySpeed = walkSpeed;
         originPosY = playerCamera.transform.localPosition.y;
+        theGunController = FindObjectOfType<GunController>();
     }
 
     void Update()
@@ -79,7 +81,10 @@ public class PlayerController : MonoBehaviour
     private void TryRun()
     {
         if (Input.GetKey(KeyCode.LeftShift))
+        {
             isRun = true;
+            theGunController.CancelFindSight();
+        }
         if(Input.GetKeyUp(KeyCode.LeftShift))
             isRun = false;       
         applySpeed = isRun ? runSpeed : walkSpeed;

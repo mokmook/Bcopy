@@ -356,6 +356,7 @@
 "Assets/1.Script/GameManager.cs"
 "Assets/1.Script/Gun.cs"
 "Assets/1.Script/GunController.cs"
+"Assets/1.Script/HUD.cs"
 "Assets/1.Script/PlayerController.cs"
 "Assets/1.Script/Setting.cs"
 "Assets/1.Script/SettingBtn.cs"
